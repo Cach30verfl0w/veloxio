@@ -1,0 +1,18 @@
+[versions]
+veloxio = "1.0.0"
+kotlin = "2.0.21" # https://kotlinlang.org/docs/releases.html#release-details
+bcv = "0.16.3" # https://github.com/Kotlin/binary-compatibility-validator/releases
+kotlinx-coroutines = "1.9.0" # https://github.com/Kotlin/kotlinx.coroutines
+kotlin-logging = "7.0.0" # https://github.com/oshai/kotlin-logging/releases
+logback = "1.5.11" # https://github.com/qos-ch/logback/tags
+
+[libraries]
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+
+## Logging ##
+kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+[plugins]
+binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "bcv" }
