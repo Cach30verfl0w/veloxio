@@ -7,4 +7,4 @@ package de.cacheoverflow.veloxio.network.eventloop
  * @author Cedric Hammes
  * @since  26/10/2024
  */
-interface EventLoop
+interface EventLoop : AutoCloseable
