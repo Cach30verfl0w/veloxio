@@ -1,0 +1,41 @@
+EventLoopGroup(maxCoroutineCount, minDistributionCount?, coroutineContext) : CoroutineScope, AutoCloseable -> EventLoop() : AutoCloseable
+EventLoop - ChannelReadEvent -> Trigger channel read in socket (Interact with ReadableChannel and call readAndSendToCollectors)
+    - minDistributionCount wäre der Punkt am dem die EventLoopGroup eine neue EventLoop erstellt und diese bis zum selben Count befüllt
+        - Aber wäre es nicht sinnvoll eine gleichmäßige Aufteilung der EventLoops hinzubekommen? Aber wie macht man das am Besten
+    - Bei maxCoroutineCount gleich 1 ignoriert die EventLoopGroup den minDistributionCount und füllt alles in eine EventLoop
+
+Features?:
+ - Support Unix Domain Sockets for Unix systems
+
+Event
+  - ChannelReadEvent
+  - SocketAcceptEvent
+
+val socket = SocketBuilder.client(Address("127.0.0.1", 1337), Transport.TCP /** or UDP **/)
+    .tls { /** TLS config **/ } // Modifies builder (TLS channels for initial channel in readChannelFactory and writeChannelFactory) /** UDP enables DTLS **/
+    .readChannelFactory { channel.map { /** Bytes to Int **/ } } // Generic function (client and server builder) // ByteArrayReadChannel to ObjectReadChannel
+    .writeChannelFactory { channel.map { /** Int to Bytes **/ } } // Generic function (client and server builder) // ByteArrayWriteChannel to ObjectWriteChannel
+    .eventLoopGroup(eventLoopGroup) // Generic function (client and server builder) (also support for eventLoop?)
+    .connect()
+
+val server = SocketBuilder.server(Address("127.0.0.1", 1337))
+    .tls { /** TLS config **/ } // Modifies builder (TLS channels for initial channel in readChannelFactory and writeChannelFactory) /** UDP enables DTLS **/
+    .readChannelFactory { channel.map { /** Bytes to Int **/ } } // Generic function (client and server builder) // ByteArrayReadChannel to ObjectReadChannel
+    .writeChannelFactory { channel.map { /** Int to Bytes **/ } } // Generic function (client and server builder) // ByteArrayWriteChannel to ObjectWriteChannel
+    .eventLoopGroup(eventLoopGroup) // Generic function (client and server builder) (also support for eventLoop?)
+    .backlog(30U)
+    .bind()
+
+class DoubleBandChannel<A>(
+    private val readChannel: ReadableChannel<A>,
+    private val writeChannel: WritableChannel<A>
+): Channel<A>, WritableChannel<A> by writeChannel, ReadableChannel<A> by readChannel {
+    override fun close() {
+        readChannel.close()
+        writeChannel.close()
+    }
+}
+
+
+Address
+    - Should resolve address over DNS
