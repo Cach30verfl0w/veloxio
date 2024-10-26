@@ -9,7 +9,7 @@ package de.cacheoverflow.veloxio.network.channel
  * @author Cedric Hammes
  * @since  26/10/2024
  */
-interface WritableChannel<T> : AutoCloseable {
+interface WritableDataChannel<T> : AutoCloseable {
     /**
      * This function writes the specified data into the channel/temporary buffer of the channel. This data is a byte array or being mapped
      * down to byte array.
@@ -41,12 +41,12 @@ interface WritableChannel<T> : AutoCloseable {
      * @author Cedric Hammes
      * @since  26/10/2024
      */
-    fun <R> map(closure: (R) -> T): WritableChannel<R> = Mapped(this, closure)
+    fun <R> map(closure: (R) -> T): WritableDataChannel<R> = Mapped(this, closure)
 
     class Mapped<I, R>(
-        private val parent: WritableChannel<R>,
+        private val parent: WritableDataChannel<R>,
         private val closure: (I) -> R
-    ): WritableChannel<I> {
+    ): WritableDataChannel<I> {
         override fun write(data: I) = parent.write(closure(data))
         override fun flush() = parent.flush()
         override fun close() = parent.close()

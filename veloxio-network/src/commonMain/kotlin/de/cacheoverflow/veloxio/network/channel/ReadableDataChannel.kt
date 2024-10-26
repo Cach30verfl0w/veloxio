@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.FlowCollector
  * @author Cedric Hammes
  * @since  26/10/2024
  */
-interface ReadableChannel<T> : Flow<T>, AutoCloseable {
+interface ReadableDataChannel<T> : Flow<T>, AutoCloseable {
     /**
      * This function directly reads the native channel for data and sends the read data to the collectors attached to the channel's flow to
      * distribute the data to the channel's collectors.
@@ -37,12 +37,12 @@ interface ReadableChannel<T> : Flow<T>, AutoCloseable {
      * @author Cedric Hammes
      * @since  26/10/2024
      */
-    fun <R> map(closure: (T) -> R): ReadableChannel<R> = Mapped(this, closure)
+    fun <R> map(closure: (T) -> R): ReadableDataChannel<R> = Mapped(this, closure)
     
     class Mapped<I, R>(
-        private val parent: ReadableChannel<I>,
+        private val parent: ReadableDataChannel<I>,
         private val closure: (I) -> R
-    ): ReadableChannel<R> {
+    ): ReadableDataChannel<R> {
         @InternalVeloxioAPI
         override fun readAndSendToCollectors(): Int = parent.readAndSendToCollectors()
         override suspend fun collect(collector: FlowCollector<R>) = parent.collect { collector.emit(closure(it)) }

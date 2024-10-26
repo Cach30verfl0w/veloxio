@@ -13,14 +13,14 @@ import kotlinx.coroutines.flow.FlowCollector
  * @author Cedric Hammes
  * @since  26/10/2024
  */
-interface Channel<I, O> : ReadableChannel<I>, WritableChannel<O> {
-    fun <IR, OR> map(readClosure: (I) -> IR, writeClosure: (OR) -> O): Channel<IR, OR> = Mapped(this, readClosure, writeClosure)
+interface DataChannel<I, O> : ReadableDataChannel<I>, WritableDataChannel<O> {
+    fun <IR, OR> map(readClosure: (I) -> IR, writeClosure: (OR) -> O): DataChannel<IR, OR> = Mapped(this, readClosure, writeClosure)
     
     private class Mapped<IA, IB, OA, OB>(
-        private val parent: Channel<IA, OA>,
+        private val parent: DataChannel<IA, OA>,
         private val readClosure: (IA) -> IB,
         private val writeClosure: (OB) -> OA
-    ): Channel<IB, OB> {
+    ): DataChannel<IB, OB> {
         @InternalVeloxioAPI
         override fun readAndSendToCollectors(): Int = parent.readAndSendToCollectors()
         override suspend fun collect(collector: FlowCollector<IB>) = parent.collect { collector.emit(readClosure(it)) }
